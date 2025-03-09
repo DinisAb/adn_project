@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добро пожаловать</title>
+    <link rel="stylesheet" href="/css/player_styles.css">
+    <style>
+        body { 
+            background: #222; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .welcome-container { 
+            width: 80%; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            text-align: center; 
+            background: #333; 
+            padding: 20px; 
+            border-radius: 8px; 
+            color: white; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+            position: relative; /* Для позиционирования кнопки */
+        }
+        .welcome-button { 
+            background: #4CAF50; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 10px; 
+            transition: background 0.3s; 
+            color: white; 
+        }
+        .welcome-button:hover { 
+            background: #45a049; 
+        }
+        #adminButton { 
+            background: #2196F3; 
+        }
+        #adminButton:hover { 
+            background: #0d47a1; 
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .rotating-logo {
+            width: 150px;
+            margin-bottom: 20px;
+            animation: rotate 10s linear infinite;
+        }
+        /* Стили для кнопки "Выход" */
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .logout-button:hover {
+            background: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <button id="logoutButton" class="logout-button">Выход</button>
+        <img src="/img/logo_welcome_ech.png" class="rotating-logo">
+        <h1>Добро пожаловать!</h1>
+        <button id="playerButton" class="welcome-button" style="display: none;">Перейти к плееру</button>
+        <button id="adminButton" class="welcome-button" style="display: none;">Админ-панель</button>
+    </div>
+
+    <script>
+        fetch('/api/me', { credentials: 'include' })
+            .then(response => {
+                if (!response.ok) throw new Error('Не авторизован');
+                return response.json();
+            })
+            .then(data => {
+                console.log('User data from /api/me:', data);
+                if (data.role === 'admin') {
+                    document.getElementById('adminButton').style.display = 'inline-block';
+                }
+                if (data.access_player === 1) {
+                    document.getElementById('playerButton').style.display = 'inline-block';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка получения данных пользователя:', error);
+                window.location.href = '/';
+            });
+
+        document.getElementById('playerButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/player', { credentials: 'include' });
+                if (response.ok) window.location.href = '/player';
+                else window.location.href = '/';
+            } catch (error) {
+                console.error('Ошибка перехода на /player:', error);
+                window.location.href = '/';
+            }
+        });
+
+        document.getElementById('adminButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/admin', { credentials: 'include' });
+                if (response.ok) window.location.href = '/admin';
+                else window.location.href = '/';
+            } catch (error) {
+                console.error('Ошибка перехода на /admin:', error);
+                window.location.href = '/';
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Видеоплеер</title>
+    <link href="https://vjs.zencdn.net/7.20.1/video-js.css" rel="stylesheet">
+    <link href="css/player_styles.css" rel="stylesheet">
+    <style>
+        /* Стили для кнопки "Назад" */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: #f44336;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .back-button:hover {
+            background: #d32f2f;
+        }
+        .back-button::before {
+            content: '✖';
+            color: white;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        .back-button:hover::before {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <button id="backButton" class="back-button"></button>
+    <div class="player-container">
+        <video id="myPlayer" class="video-js vjs-default-skin" controls preload="auto"></video>
+        <div id="errorMessage" class="error-message"></div>
+        <canvas id="videoCanvas" style="display: none;"></canvas>
+    </div>
+    
+    <div id="streamUrl" class="stream-url"></div>
+    <ul id="streamList" class="stream-list"></ul>
+
+    <script src="https://vjs.zencdn.net/7.20.1/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="js/player_scripts.js"></script>
+
+    <script>
+        document.getElementById('backButton').addEventListener('click', () => {
+            window.location.href = '/welcome';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+body {
+    margin: 0;
+    padding: 20px;
+    background: #2d2d2d;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.player-container {
+    width: 80%;
+    max-width: 1200px;
+    margin-bottom: 20px;
+    background: #000;
+    border-radius: 8px;
+    position: relative;
+    z-index: 1;
+    /* Начальное свечение (будет обновляться JS) */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.1s ease; /* Плавное изменение свечения */
+}
+
+.video-js {
+    width: 100% !important;
+    height: 450px !important;
+}
+
+.vjs-control-bar {
+    position: absolute !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    background: rgba(0,0,0,0.7) !important;
+}
+
+.vjs-big-play-button {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+    z-index: 100 !important;
+    pointer-events: auto !important;
+    background-image: url('../img/play_player.png') !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+}
+
+.vjs-big-play-button .vjs-icon-placeholder {
+    display: none !important;
+}
+
+.stream-list {
+    list-style: none;
+    padding: 0;
+    width: 80%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stream-item {
+    background: #3a3a3a;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.stream-item:hover {
+    background: #4a4a4a;
+}
+
+.stream-item.active {
+    background: #4CAF50;
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    background: #999;
+}
+
+.status-online {
+    background: #4CAF50;
+}
+
+.status-offline {
+    background: #f44336;
+}
+
+.error-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+    display: none;
+    z-index: 50;
+}
+
+.stream-url {
+    width: 80%;
+    max-width: 1200px;
+    margin: 10px 0;
+    text-align: center;
+    color: #4CAF50;
+    background: #3a3a3a;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    word-break: break-all;
+    display: none;
+}
+
+.stream-url:hover {
+    background: #4a4a4a;
+}

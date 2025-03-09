@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Главная страница</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #2d2d2d;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .main-button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+        .main-button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Добро пожаловать!</h2>
+        <a href="/player.html"><button class="login-button">Перейти к плееру</button></a>
+        <button onclick="logout()" class="login-button">Выйти</button>
+    </div>
+</body>
+</html>

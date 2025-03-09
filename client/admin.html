@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="/css/player_styles.css">
+    <style>
+        body { background: #222; color: #ddd; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #333; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); position: relative; }
+        h1, h2 { color: #fff; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-button { background: #444; border: none; padding: 10px 20px; color: #ddd; cursor: pointer; border-radius: 4px; }
+        .tab-button.active { background: #4CAF50; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        ul { list-style: none; padding: 0; }
+        li { display: flex; justify-content: space-between; padding: 10px; background: #444; margin-bottom: 5px; border-radius: 4px; align-items: center; }
+        .status-indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .status-online { background: #4CAF50; }
+        .status-offline { background: #f44336; }
+        .action-buttons button { background: #2196F3; border: none; padding: 5px 10px; color: white; cursor: pointer; border-radius: 4px; margin-left: 5px; }
+        .action-buttons button:hover { background: #0d47a1; }
+        form { display: flex; gap: 10px; margin-bottom: 20px; }
+        input, select { padding: 10px; background: #444; border: none; border-radius: 4px; color: white; }
+        button[type="submit"] { background: #4CAF50; border: none; padding: 10px 20px; color: white; cursor: pointer; border-radius: 4px; }
+        button[type="submit"]:hover { background: #45a049; }
+        /* Стили для кнопки "Назад" */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: #f44336;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .back-button:hover {
+            background: #d32f2f;
+        }
+        .back-button::before {
+            content: '✖';
+            color: white;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        .back-button:hover::before {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="backButton" class="back-button"></button>
+        <h1>Админ-панель</h1>
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('streams')">Потоки</button>
+            <button class="tab-button" onclick="showTab('users')">Пользователи</button>
+        </div>
+
+        <div id="streams" class="tab-content active">
+            <h2>Управление потоками</h2>
+            <form id="addStreamForm">
+                <input type="text" id="streamName" placeholder="Название" required>
+                <input type="text" id="streamUrl" placeholder="URL потока" required>
+                <button type="submit">Добавить</button>
+            </form>
+            <ul id="adminStreamList"></ul>
+        </div>
+
+        <div id="users" class="tab-content">
+            <h2>Управление пользователями</h2>
+            <form id="addUserForm">
+                <input type="text" id="newUsername" placeholder="Логин" required>
+                <input type="password" id="newPassword" placeholder="Пароль" required>
+                <select id="newRole">
+                    <option value="user">Пользователь</option>
+                    <option value="admin">Админ</option>
+                </select>
+                <label>Доступ к плееру: <input type="checkbox" id="newAccessPlayer" checked></label>
+                <button type="submit">Добавить</button>
+            </form>
+            <ul id="userList"></ul>
+        </div>
+    </div>
+
+    <script>
+        fetch('/api/me', { credentials: 'include' })
+            .then(response => {
+                if (!response.ok) throw new Error('Не авторизован');
+                return response.json();
+            })
+            .then(data => {
+                if (data.role !== 'admin') window.location.href = '/welcome';
+            })
+            .catch(error => {
+                console.error('Ошибка проверки авторизации:', error);
+                window.location.href = '/';
+            });
+
+        document.getElementById('backButton').addEventListener('click', () => {
+            window.location.href = '/welcome';
+        });
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            if (tabId === 'streams') loadAdminStreams();
+            if (tabId === 'users') loadUsers();
+        }
+
+        async function loadAdminStreams() {
+            try {
+                const response = await fetch('/api/admin/streams', { credentials: 'include' });
+                const streams = await response.json();
+                const list = document.getElementdő
+                list.innerHTML = streams.map(stream => `
+                    <li data-id="${stream.id}">
+                        <div>
+                            <span class="status-indicator ${stream.status === 'online' ? 'status-online' : 'status-offline'}"></span>
+                            ${stream.name}
+                        </div>
+                        <div class="action-buttons">
+                            <button onclick="checkStream(${stream.id})">Проверить</button>
+                            <button onclick="deleteStream(${stream.id})">Удалить</button>
+                        </div>
+                    </li>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки потоков:', error);
+            }
+        }
+
+        document.getElementById('addStreamForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('streamName').value;
+            const url = document.getElementById('streamUrl').value;
+            try {
+                const response = await fetch('/api/admin/streams', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ name, url, type: 'hls' })
+                });
+                if (response.ok) {
+                    document.getElementById('addStreamForm').reset();
+                    loadAdminStreams();
+                }
+            } catch (error) {
+                console.error('Ошибка добавления потока:', error);
+            }
+        });
+
+        async function checkStream(id) {
+            try {
+                const response = await fetch('/api/admin/check-streams', { credentials: 'include' });
+                const statuses = await response.json();
+                statuses.forEach(status => {
+                    const indicator = document.querySelector(`[data-id="${status.id}"] .status-indicator`);
+                    if (indicator) {
+                        indicator.className = `status-indicator ${status.status === 'online' ? 'status-online' : 'status-offline'}`;
+                    }
+                });
+            } catch (error) {
+                console.error('Ошибка проверки потока:', error);
+            }
+        }
+
+        async function deleteStream(id) {
+            if (confirm('Удалить поток?')) {
+                try {
+                    await fetch(`/api/admin/streams/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    loadAdminStreams();
+                } catch (error) {
+                    console.error('Ошибка удаления потока:', error);
+                }
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users', { credentials: 'include' });
+                const users = await response.json();
+                const list = document.getElementById('userList');
+                list.innerHTML = users.map(user => `
+                    <li data-id="${user.id}">
+                        <span>${user.username}</span>
+                        <select onchange="updateUser(${user.id}, this.value, document.getElementById('access-${user.id}').checked)">
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Админ</option>
+                            <option value="user" ${user.role === 'user' ? 'selected' : ''}>Пользователь</option>
+                        </select>
+                        <label>Доступ к плееру: 
+                            <input type="checkbox" id="access-${user.id}" ${user.access_player ? 'checked' : ''} onchange="updateUser(${user.id}, document.querySelector('[data-id=\\'${user.id}\\'] select').value, this.checked)">
+                        </label>
+                        <div class="action-buttons">
+                            <button onclick="deleteUser(${user.id})">Удалить</button>
+                        </div>
+                    </li>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки пользователей:', error);
+            }
+        }
+
+        async function updateUser(id, role, accessPlayer) {
+            try {
+                await fetch(`/api/admin/users/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ role, access_player: accessPlayer ? 1 : 0 })
+                });
+            } catch (error) {
+                console.error('Ошибка обновления пользователя:', error);
+                loadUsers();
+            }
+        }
+
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+            const accessPlayer = document.getElementById('newAccessPlayer').checked;
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password, role, access_player: accessPlayer ? 1 : 0 })
+                });
+                if (response.ok) {
+                    document.getElementById('addUserForm').reset();
+                    loadUsers();
+                }
+            } catch (error) {
+                console.error('Ошибка добавления пользователя:', error);
+            }
+        });
+
+        async function deleteUser(id) {
+            if (confirm('Удалить пользователя?')) {
+                try {
+                    await fetch(`/api/admin/users/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    loadUsers();
+                } catch (error) {
+                    console.error('Ошибка удаления пользователя:', error);
+                }
+            }
+        }
+
+        loadAdminStreams();
+    </script>
+</body>
+</html>
